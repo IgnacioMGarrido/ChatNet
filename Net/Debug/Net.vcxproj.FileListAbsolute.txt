@@ -1,0 +1,2 @@
+D:\VisualStudioWorkspace\ChatNet\Debug\Net.pdb
+D:\VisualStudioWorkspace\ChatNet\Net\Debug\Net.pdb

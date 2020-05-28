@@ -1,1 +1,9 @@
-﻿
+﻿  buffer.cpp
+  clientENet.cpp
+  connectionENet.cpp
+  packet.cpp
+  serializable.cpp
+  serverENet.cpp
+  Generating Code...
+WS2_32.x86.Lib(WS2_32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in WinMM.x86.Lib(WINMM.dll); second definition ignored
+  Net.vcxproj -> D:\VisualStudioWorkspace\ChatNet\Debug\Net.lib

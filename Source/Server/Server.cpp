@@ -9,7 +9,15 @@
 namespace
 {
     const int s_iPort = 65785;
+    enum class EMessageType
+    {
+        setID,
+        setName,
+        Message
+    };
 }
+
+Net::NetID m_xNextID = 0;
 
 int main()
 {
@@ -29,18 +37,40 @@ int main()
             {
                 case Net::CONNECTION:
                 {
+                    ++m_xNextID;
+                    Net::CBuffer oData;
+                    EMessageType xType = EMessageType::setID;
+                    oData.write(&xType, sizeof(xType));
+                    oData.write(&m_xNextID, sizeof(m_xNextID));
+                    Net::CPacket oIDPacket(Net::EPacketType::DATA, oData.getbuffer(), oData.getSize(), pPacket->getConnection(), 0);
+                    pServer->sendData(pPacket->getConnection(), oIDPacket.getData(), oIDPacket.getDataLength(), 0, true);
                     std::cout << "a new client has been connected\n";
                 }
                 break;
                 case Net::DATA:
                 {
-                    Net::CBuffer oData;
-                    oData.write(pPacket->getData(), pPacket->getDataLength());
-                    oData.reset();
-                    size_t iSize = oData.getSize();
-                    oData.read(sMessage, iSize);
-                    sMessage[iSize] = '\0';
-                    std::cout << sMessage << "\n";
+                    Net::CBuffer Data(1024, 256);
+                    Data.write(pPacket->getData(), pPacket->getDataLength());
+                    Data.reset();
+
+                    EMessageType Type = EMessageType::setID;
+                    Data.read(&Type, sizeof(Type));
+
+                    switch(Type) {
+                    case EMessageType::Message:
+                        {
+                            Net::NetID xOtherID;
+                            Data.read(&xOtherID, sizeof(xOtherID));
+                            size_t Size = Data.getSize() - sizeof(Type) - sizeof(xOtherID);
+                            Data.read(sMessage, Size);
+                            sMessage[Size] = '\0';
+                            std::cout << xOtherID << ": " << sMessage << "\n";
+                            pServer->sendAll(pPacket->getData(), pPacket->getDataLength(), 0, true);
+                        }
+                        break;
+                    default: ;
+                    }
+
                 }
                 break;
                 case Net::DISCONNECTION:
